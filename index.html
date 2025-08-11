@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hidden { display: none !important; }
+        .disabled { opacity: 0.5; pointer-events: none; }
+        .pin-input { -webkit-text-security: disc; text-security: disc; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-md">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-2">Shift Management</h1>
+            <p class="text-center text-gray-600 text-sm" id="currentDate"></p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Supervisor Login</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Supervisor</label>
+                <select id="supervisorSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Choose Supervisor</option>
+                    <option value="MAHENDRA KUMAR">MAHENDRA KUMAR</option>
+                    <option value="PINTU SAH">PINTU SAH</option>
+                    <option value="HARKIRAT SINGH">HARKIRAT SINGH</option>
+                    <option value="SUNIL CHAUHAN">SUNIL CHAUHAN</option>
+                    <option value="NSUP1">NSUP1</option>
+                    <option value="NSUP2">NSUP2</option>
+                    <option value="NSUP3">NSUP3</option>
+                    <option value="NSUP4">NSUP4</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Enter 4-Digit PIN</label>
+                <input type="password" id="pinInput" maxlength="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest" placeholder="••••">
+            </div>
+
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
+                Login
+            </button>
+        </div>
+
+        <!-- Start Shift Section -->
+        <div id="startShiftSection" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Start Shift - Morning Entry</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Workers Present Today</label>
+                <div class="mb-3 flex justify-between">
+                    <button onclick="selectAllWorkers()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">Select All</button>
+                    <button onclick="clearAllWorkers()" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">Clear All</button>
+                </div>
+                <div id="workerCheckboxList" class="max-h-64 overflow-y-auto border border-gray-300 rounded-lg p-3 space-y-2">
+                    <!-- Worker checkboxes will be populated here -->
+                </div>
+                <div class="mt-3 text-sm text-gray-600">
+                    Selected: <span id="selectedCount">0</span> workers
+                </div>
+            </div>
+
+            <button onclick="submitStartShift()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-200">
+                Submit Start Shift
+            </button>
+        </div>
+
+        <!-- End Shift Section -->
+        <div id="endShiftSection" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden disabled">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">End Shift - Evening Entry</h2>
+            
+            <!-- Worker Overtime -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Worker Overtime Hours</h3>
+                <div id="workerOvertimeList" class="space-y-3"></div>
+            </div>
+
+            <!-- Measurement Entry -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Measurement Entry</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Work Type</label>
+                    <select id="workType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Work Type</option>
+                        <option value="ERECTION">ERECTION</option>
+                        <option value="DISMANTLING">DISMANTLING</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Length (m)</label>
+                        <input type="number" id="length" step="0.01" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Width (m)</label>
+                        <input type="number" id="width" step="0.01" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Height (m)</label>
+                        <input type="number" id="height" step="0.01" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <input type="number" id="quantity" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <button onclick="addMeasurement()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 mb-4">
+                    Add Measurement
+                </button>
+
+                <div id="measurementsList" class="space-y-2 mb-4"></div>
+            </div>
+
+            <button onclick="submitEndShift()" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200">
+                Submit End Shift
+            </button>
+        </div>
+
+        <!-- Summary Report -->
+        <div id="summarySection" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Shift Summary Report</h2>
+            <div id="summaryContent" class="bg-gray-50 p-4 rounded-lg text-sm font-mono whitespace-pre-line"></div>
+            <button onclick="shareReport()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-200 mt-4">
+                Share Report
+            </button>
+            <button onclick="resetApp()" class="w-full bg-gray-600 text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition duration-200 mt-2">
+                Start New Shift
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Supervisor PINs
+        const supervisorPins = {
+            'MAHENDRA KUMAR': '1122',
+            'PINTU SAH': '3344',
+            'HARKIRAT SINGH': '5566',
+            'SUNIL CHAUHAN': '7788',
+            'NSUP1': '9012',
+            'NSUP2': '2345',
+            'NSUP3': '6789',
+            'NSUP4': '1010'
+        };
+
+        // Global variables
+        let currentSupervisor = '';
+        let workers = [];
+        let measurements = [];
+        let shiftStarted = false;
+
+        // Predefined worker list
+        const workerList = [
+            'HARKIRAT',
+            'MAHENDRA KUMAR',
+            'SUNIL CHAUHAN',
+            'PINTU KUMAR SAH',
+            'AMAN KUMAR',
+            'ATUL MAHADEO',
+            'CHANDAN KUMAR',
+            'DEEPAK DAS',
+            'DEEPAK KUMAR',
+            'DHIRAJ KUMAR MANJI',
+            'DAULAT YADAV',
+            'FOOL SINGH',
+            'KIRAN PASWAN',
+            'KUNDAN KUMAR',
+            'MITLESH KUMAR',
+            'NIRAJ KUMAR',
+            'NANDAN KUMAR',
+            'NARESH KUMAR',
+            'OM PRAKASH',
+            'PANDURANG',
+            'RAJU KUMAR',
+            'ROSHAN CHAUHAN',
+            'RAM BABU',
+            'RAM KISHOR DAS',
+            'RAHUL KUMAR',
+            'SANDIP MADHUKAR',
+            'SAHAB CHAUHAN',
+            'SARVESH KUMAR',
+            'SANJITH YADAV',
+            'SHIVAM KUMAR',
+            'SUDISH SAH',
+            'VISHAL PRUTHVIRAJ'
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+            loadShiftData();
+            populateWorkerCheckboxes();
+        });
+
+        // Populate worker checkboxes
+        function populateWorkerCheckboxes() {
+            const workerCheckboxList = document.getElementById('workerCheckboxList');
+            workerCheckboxList.innerHTML = '';
+
+            workerList.forEach((worker, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                div.innerHTML = `
+                    <input type="checkbox" id="worker_${index}" value="${worker}" 
+                           onchange="updateSelectedCount()" 
+                           class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="worker_${index}" class="text-sm text-gray-700 cursor-pointer">${worker}</label>
+                `;
+                workerCheckboxList.appendChild(div);
+            });
+        }
+
+        // Select all workers
+        function selectAllWorkers() {
+            const checkboxes = document.querySelectorAll('#workerCheckboxList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateSelectedCount();
+        }
+
+        // Clear all workers
+        function clearAllWorkers() {
+            const checkboxes = document.querySelectorAll('#workerCheckboxList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateSelectedCount();
+        }
+
+        // Update selected count
+        function updateSelectedCount() {
+            const checkedBoxes = document.querySelectorAll('#workerCheckboxList input[type="checkbox"]:checked');
+            document.getElementById('selectedCount').textContent = checkedBoxes.length;
+        }
+
+        // Login function
+        function login() {
+            const supervisor = document.getElementById('supervisorSelect').value;
+            const pin = document.getElementById('pinInput').value;
+
+            if (!supervisor) {
+                alert('Please select a supervisor');
+                return;
+            }
+
+            if (!pin || pin.length !== 4) {
+                alert('Please enter a 4-digit PIN');
+                return;
+            }
+
+            if (supervisorPins[supervisor] !== pin) {
+                alert('Invalid PIN. Please try again.');
+                document.getElementById('pinInput').value = '';
+                return;
+            }
+
+            currentSupervisor = supervisor;
+            document.getElementById('loginSection').classList.add('hidden');
+            
+            // Check if shift already started
+            const savedData = localStorage.getItem(`shift_${supervisor}_${new Date().toDateString()}`);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                workers = data.workers || [];
+                shiftStarted = data.shiftStarted || false;
+                
+                if (shiftStarted) {
+                    showEndShift();
+                } else {
+                    document.getElementById('startShiftSection').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('startShiftSection').classList.remove('hidden');
+            }
+        }
+
+        // Submit start shift
+        function submitStartShift() {
+            const checkedBoxes = document.querySelectorAll('#workerCheckboxList input[type="checkbox"]:checked');
+            
+            if (checkedBoxes.length === 0) {
+                alert('Please select at least one worker');
+                return;
+            }
+
+            workers = Array.from(checkedBoxes).map(checkbox => ({
+                name: checkbox.value,
+                overtime: 0
+            }));
+
+            shiftStarted = true;
+            saveShiftData();
+
+            document.getElementById('startShiftSection').classList.add('hidden');
+            showEndShift();
+        }
+
+        // Show end shift section
+        function showEndShift() {
+            const workerOvertimeList = document.getElementById('workerOvertimeList');
+            workerOvertimeList.innerHTML = '';
+
+            workers.forEach((worker, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                div.innerHTML = `
+                    <span class="font-medium">${worker.name}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">OT Hours:</span>
+                        <input type="number" min="0" max="12" step="0.5" value="${worker.overtime}" 
+                               onchange="updateWorkerOvertime(${index}, this.value)"
+                               class="w-16 p-1 border border-gray-300 rounded text-center">
+                    </div>
+                `;
+                workerOvertimeList.appendChild(div);
+            });
+
+            document.getElementById('endShiftSection').classList.remove('hidden', 'disabled');
+        }
+
+        // Update worker overtime
+        function updateWorkerOvertime(index, overtime) {
+            workers[index].overtime = parseFloat(overtime) || 0;
+            saveShiftData();
+        }
+
+        // Add measurement
+        function addMeasurement() {
+            const workType = document.getElementById('workType').value;
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 0;
+
+            if (!workType || !length || !width || !height || !quantity) {
+                alert('Please fill all measurement fields');
+                return;
+            }
+
+            let cbm;
+            if (workType === 'ERECTION') {
+                cbm = length * width * height * quantity;
+            } else {
+                cbm = (length * width * height * quantity) / 2;
+            }
+
+            const measurement = {
+                workType,
+                length,
+                width,
+                height,
+                quantity,
+                cbm: cbm.toFixed(2)
+            };
+
+            measurements.push(measurement);
+            displayMeasurement(measurement, measurements.length - 1);
+            clearMeasurementInputs();
+            saveShiftData();
+        }
+
+        // Display measurement
+        function displayMeasurement(measurement, index) {
+            const measurementsList = document.getElementById('measurementsList');
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-50 rounded-lg';
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="text-sm">
+                        <strong>${measurement.workType}</strong><br>
+                        ${measurement.length}m × ${measurement.width}m × ${measurement.height}m × ${measurement.quantity}
+                    </div>
+                    <button onclick="removeMeasurement(${index})" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                </div>
+            `;
+            measurementsList.appendChild(div);
+        }
+
+        // Remove measurement
+        function removeMeasurement(index) {
+            measurements.splice(index, 1);
+            refreshMeasurementsList();
+            saveShiftData();
+        }
+
+        // Refresh measurements list
+        function refreshMeasurementsList() {
+            const measurementsList = document.getElementById('measurementsList');
+            measurementsList.innerHTML = '';
+            measurements.forEach((measurement, index) => {
+                displayMeasurement(measurement, index);
+            });
+        }
+
+        // Clear measurement inputs
+        function clearMeasurementInputs() {
+            document.getElementById('workType').value = '';
+            document.getElementById('length').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('quantity').value = '';
+        }
+
+        // Submit end shift
+        function submitEndShift() {
+            if (measurements.length === 0) {
+                alert('Please add at least one measurement entry');
+                return;
+            }
+
+            generateSummaryReport();
+            document.getElementById('endShiftSection').classList.add('hidden');
+            document.getElementById('summarySection').classList.remove('hidden');
+        }
+
+        // Generate summary report
+        function generateSummaryReport() {
+            const date = new Date().toLocaleDateString();
+            let totalErectionVolume = 0;
+            let totalDismantlingVolume = 0;
+            let totalManHours = 0;
+
+            // Calculate volumes
+            measurements.forEach(m => {
+                if (m.workType === 'ERECTION') {
+                    totalErectionVolume += parseFloat(m.cbm);
+                } else {
+                    totalDismantlingVolume += parseFloat(m.cbm);
+                }
+            });
+
+            // Calculate total man hours
+            workers.forEach(worker => {
+                totalManHours += 9 + worker.overtime;
+            });
+
+            const totalVolume = totalErectionVolume + totalDismantlingVolume;
+            const productivity = totalManHours > 0 ? (totalVolume / totalManHours).toFixed(3) : 0;
+
+            const report = `SHIFT SUMMARY REPORT
+===================
+
+Date: ${date}
+Supervisor: ${currentSupervisor}
+
+WORKFORCE:
+Total Workers: ${workers.length}
+Total Man-hours: ${totalManHours.toFixed(1)}
+
+WORK COMPLETED:
+Total Erection Volume: ${totalErectionVolume.toFixed(2)} CBM
+Total Dismantling Volume: ${totalDismantlingVolume.toFixed(2)} CBM
+Total Volume: ${totalVolume.toFixed(2)} CBM
+
+PRODUCTIVITY: ${productivity} CBM/Man-hour
+
+WORKER DETAILS:
+${workers.map(w => `${w.name}: ${9 + w.overtime} hours (OT: ${w.overtime})`).join('\n')}
+
+MEASUREMENT DETAILS:
+${measurements.map(m => `${m.workType}: ${m.length}×${m.width}×${m.height}×${m.quantity} = ${m.cbm} CBM`).join('\n')}`;
+
+            document.getElementById('summaryContent').textContent = report;
+        }
+
+        // Share report
+        function shareReport() {
+            const reportText = document.getElementById('summaryContent').textContent;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Shift Summary Report',
+                    text: reportText
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                navigator.clipboard.writeText(reportText).then(() => {
+                    alert('Report copied to clipboard!');
+                }).catch(() => {
+                    // Create a temporary textarea for copying
+                    const textarea = document.createElement('textarea');
+                    textarea.value = reportText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Report copied to clipboard!');
+                });
+            }
+        }
+
+        // Reset app
+        function resetApp() {
+            if (confirm('Are you sure you want to start a new shift? This will clear all current data.')) {
+                localStorage.removeItem(`shift_${currentSupervisor}_${new Date().toDateString()}`);
+                location.reload();
+            }
+        }
+
+        // Save shift data
+        function saveShiftData() {
+            const data = {
+                supervisor: currentSupervisor,
+                workers: workers,
+                measurements: measurements,
+                shiftStarted: shiftStarted,
+                date: new Date().toDateString()
+            };
+            localStorage.setItem(`shift_${currentSupervisor}_${new Date().toDateString()}`, JSON.stringify(data));
+        }
+
+        // Load shift data
+        function loadShiftData() {
+            // This would typically load from cloud storage
+            // For now, we use localStorage as a demo
+        }
+
+        // Load existing measurements on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshMeasurementsList();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d5078962513205',t:'MTc1NDg4Njk2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
